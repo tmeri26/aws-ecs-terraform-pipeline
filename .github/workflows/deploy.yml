@@ -1,4 +1,4 @@
-name: List EC2 Instances
+name: Deploy to AWS
 
 on:
   push:
@@ -10,21 +10,21 @@ permissions:
   contents: read
 
 jobs:
-  list-ec2:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Configure AWS credentials using OIDC
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
-      - name: List EC2 Instances
-        run: |
-          aws ec2 describe-instances \
-            --query "Reservations[*].Instances[*].InstanceId" \
-            --output table
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
+      - name: List S3 Buckets
+        run: aws s3 ls
