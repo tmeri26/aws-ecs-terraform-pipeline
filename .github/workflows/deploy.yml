@@ -30,7 +30,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.arn:aws:iam::277361136766:role/github-actions-role }}
           role-session-name: GitHubActions-S3-Deploy-${{ github.run_id }}
-          aws-region: "ap-south-1"
+          aws-region: "us-east-1"
 
       # Deploy to S3 bucket securely
       - name: Deploy to S3
