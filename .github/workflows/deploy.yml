@@ -1,27 +1,44 @@
-name: AWS OIDC Deployment
+name: Deploy Static Website to S3
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch: # Allows manual triggering
 
-# Required permissions for OIDC authentication
+# Required permissions for keyless OIDC authentication
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  aws-deployment:
+  deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials via OIDC
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Upgraded to v4
+
+      # Update deployment timestamp
+      - name: Update deployment timestamp
+        run: |
+          echo "// Updating timestamp for deployment on $(date)" >> js/script.js
+          echo "// Deployment ID: ${{ github.run_id }}" >> js/script.js
+
+      # OIDC Authentication
+      - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::277361136766:role/github-actions-role # Replace with your copied IAM Role ARN
-          aws-region: us-east-1 # Replace with your target AWS region
+          role-to-assume: ${{ secrets.arn:aws:iam::277361136766:role/github-actions-role }}
+          role-session-name: GitHubActions-S3-Deploy-${{ github.run_id }}
+          aws-region: "ap-south-1"
 
-      - name: Verify AWS Identity
-        run: aws sts get-caller-identity
+      # Deploy to S3 bucket securely
+      - name: Deploy to S3
+        run: |
+          aws s3 sync ./ s3://${{ secrets.my-static-website-bucket-123 }}/ \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "*.md" \
+            --exclude "*.json" \
+            --exclude ".gitignore"
