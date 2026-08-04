@@ -1,31 +1,27 @@
-name: Deploy Infrastructure and Application
+name: AWS OIDC Deployment
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
-# --- THIS IS THE PERMISSIONS BLOCK FROM YOUR IMAGE ---
+# Required permissions for OIDC authentication
 permissions:
-  id-token: write # Required to request the JWT token for OIDC
-  contents: read # Required to checkout repository code
+  id-token: write
+  contents: read
 
 jobs:
-  deploy:
+  aws-deployment:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # --- THIS IS THE AWS STEP FROM YOUR IMAGE ---
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::277361136766:role/github-actions-role
-          #role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
-          #role-session-name: gh-actions-${{ github.run_id }}
-          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::277361136766:role/github-actions-role # Replace with your copied IAM Role ARN
+          aws-region: us-east-1 # Replace with your target AWS region
 
-      # (Subsequent steps like Terraform or Docker build go here)
-      - name: Test AWS Connection
+      - name: Verify AWS Identity
         run: aws sts get-caller-identity
