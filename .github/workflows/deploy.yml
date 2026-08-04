@@ -28,14 +28,14 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.arn:aws:iam::277361136766:role/github-actions-role }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
           role-session-name: GitHubActions-S3-Deploy-${{ github.run_id }}
-          aws-region: "us-east-1"
+          aws-region: "ap-south-1"
 
       # Deploy to S3 bucket securely
       - name: Deploy to S3
         run: |
-          aws s3 sync ./ s3://${{ secrets.my-static-website-bucket-123 }}/ \
+          aws s3 sync ./ s3://${{ secrets.S3_BUCKET_NAME }}/ \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*" \
