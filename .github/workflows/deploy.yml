@@ -2,12 +2,12 @@ name: Deploy Infrastructure and Application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 # --- THIS IS THE PERMISSIONS BLOCK FROM YOUR IMAGE ---
 permissions:
-  id-token: write   # Required to request the JWT token for OIDC
-  contents: read    # Required to checkout repository code
+  id-token: write # Required to request the JWT token for OIDC
+  contents: read # Required to checkout repository code
 
 jobs:
   deploy:
