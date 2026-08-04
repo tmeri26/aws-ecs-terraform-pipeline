@@ -16,7 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      - name: Debug ARN
+        run: echo "${{ secrets.AWS_IAM_ROLE_ARN }}" | sed 's/[0-9]/X/g'
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
