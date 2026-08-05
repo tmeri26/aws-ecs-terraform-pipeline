@@ -1,31 +1,28 @@
-name: Deploy to AWS
+name: AWS OIDC Deployment
 
 on:
   push:
     branches:
       - main
 
+# Required permissions for OIDC authentication
 permissions:
-  id-token: write
-  contents: read
+  id-token: write # This is required for requesting the JWT token from GitHub
+  contents: read # This is required for actions/checkout
 
 jobs:
-  deploy:
+  DeployToAWS:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Git clone repository
         uses: actions/checkout@v4
-      - name: Debug ARN
-        run: echo "${{ secrets.AWS_IAM_ROLE_ARN }}" | sed 's/[0-9]/X/g'
-      - name: Configure AWS Credentials
+
+      - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::277361136766:role/github-actions-role-new
+          aws-region: us-east-1 # Replace with your target region
 
       - name: Verify AWS Identity
-        run: aws sts get-caller-identity
-
-      - name: List S3 Buckets
-        run: aws s3 ls
+        run: |
+          aws sts get-caller-identity
